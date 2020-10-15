@@ -223,11 +223,11 @@ public:
         string out;
         for(int i=0;i<rows;i++){
             for(int j=0;j<cols-1;j++){
-                // printf("%d ",col_maj[j]->get_ith(i));
+                // printf("%c ",(col_maj[j]->get_ith(i)==1)? 'O':'.');
                 out.append(1,(col_maj[j]->get_ith(i) == 1)?'1':'0');
                 out.append(1,' ');
             }
-            // printf("%d\n",col_maj[cols-1]->get_ith(i));
+            // printf("%c\n",(col_maj[cols-1]->get_ith(i)==1)? 'O':'.');
             out.append(1,(col_maj[cols-1]->get_ith(i) == 1)?'1':'0');
             out.append(1,'\n');
         }
@@ -261,13 +261,21 @@ public:
     }
     int left_distance(){
         int cur = col - 1;
+        if(row < 0){
+            return col - 1;
+        }
         while(cur > -1 && tetrixmap->col_maj[cur]->get_ith(row) == 0) cur--;
         return col - cur - 1; 
     }
     int right_distance(){
         int cur = col + 1;
-        while(cur < tetrixmap->cols && tetrixmap->col_maj[cur]->get_ith(row) == 0) cur++;
-        return cur - col -1;
+        if(row < 0){
+            return tetrixmap->cols - col - 1;
+        }
+        else{
+            while(cur < tetrixmap->cols && tetrixmap->col_maj[cur]->get_ith(row) == 0) cur++;
+            return cur - col -1;
+        }
     }
     int get_row(){
         return row;
@@ -514,6 +522,13 @@ public:
             squares[i] = square();
         }
     }
+
+    bool is_death(){
+        for(int i=0;i<4;i++){
+            if(squares[i].get_row() < 0) return true;
+        }
+        return false;
+    }
 };
 
 
@@ -545,7 +560,7 @@ int main(int argc, char *argv[]){
         blk.drop();
         blk.crab(blk.ground_step);
         blk.drop();
-        if(blk.ref_row < 0){
+        if(blk.is_death()){
             printf("Error: DEATH!\n");
             exit(9);
         }
